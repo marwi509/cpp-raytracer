@@ -1,0 +1,1 @@
+#include "LargeHdrImage.hpp"
