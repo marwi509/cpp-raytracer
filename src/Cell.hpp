@@ -6,6 +6,11 @@
  * 	
 */
 
+#include <iostream>
+#include <cstdlib>
+#include <vector>
+#include "Ray.hpp"
+
 using namespace std;
 
 static int nrInters;

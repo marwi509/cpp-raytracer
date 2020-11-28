@@ -3,6 +3,7 @@
 #include "Image.hpp"
 #include <cstdio>
 #include <iostream>
+#include "Window.h"
 
 using namespace std;
 
@@ -49,20 +50,11 @@ bool Image::putPixel(int x, int y, Vector3 c, float gamma)
 		return false;
 		
 	/* Gamma correct */
-	c.x = powf(c.x, 1.0f / gamma);
-	c.y = powf(c.y, 1.0f / gamma);
-	c.z = powf(c.z, 1.0f / gamma);
+	c = Vector3(powf(c.x, 1.0f / gamma), powf(c.y, 1.0f / gamma), powf(c.z, 1.0f / gamma));
 	
 	/* Scale to [0, 255] */
 	c = c * 255.0f;
-	
-	/* Clamp */
-	if(c.x > 255)
-		c.x = 255;
-	if(c.y > 255)
-		c.y = 255;
-	if(c.z > 255)
-		c.z = 255;
+	c = Vector3(c.x > 255 ? 255 : c.x, c.y > 255 ? 255 : c.y, c.z > 255 ? 255 : c.z);
 	
 	/* Insert the pixels with bitshifts */
 	pixels[y*width + x] = (int)c.x | ((int)c.y) << 8 | ((int)c.z) << 16;
@@ -176,7 +168,10 @@ void Image::createMosaic(const char* filename, int tilesize)
 	delete [] points;
 }
 
-
+void Image::render() 
+{
+	Window::draw(*this);
+}
 
 
 

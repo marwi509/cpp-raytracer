@@ -14,6 +14,7 @@
 Light::Light(const char* filename, const Vector3& colorIn)
 {
 	material = Material::DIFFUSE(colorIn);
+	material->light = true;
 	readObjFile(filename);
 	
 }
@@ -23,6 +24,7 @@ Light::Light(const char* filename, const Vector3& colorIn)
 void Light::scale(const Vector3& scale) {
 	scaleSaved = scale;
 	material -> diffuseColor = material -> diffuseColor * (1.0f / (scale.x*scale.y + scale.x*scale.z + scale.z*scale.y));
+	//material->diffuseColor = material->diffuseColor * (1.0f / (scale.x*scale.x + scale.y*scale.y + scale.z*scale.z));
 	Object::scale(scale);
 }
 

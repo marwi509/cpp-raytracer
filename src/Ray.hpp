@@ -1,4 +1,8 @@
+#ifndef _RAY_HPP
+#define _RAY_HPP
+
 #include <iostream>
+#include "Material.hpp"
 
 using namespace std;
 
@@ -25,9 +29,11 @@ class Ray
 		
 	/* Current refraction index, should be used but isn't */
 	float refractionIndex;
+	Material* material;
 	
 	/* Current recursion depth, not used yet either */
 	int depth;
+	bool scatter;
 	
 	/** Empty constructor */
 	Ray()
@@ -35,6 +41,8 @@ class Ray
 		refractionIndex = 1.0f;
 		depth = 0;
 		color = Vector3(1,1,1);
+		material = NULL;
+		scatter = false;
 	}
 	
 	/** Konstruktor med riktning och position */
@@ -49,6 +57,24 @@ class Ray
 		refractionIndex = 1.0f;
 		depth = 0;
 		color = Vector3(1,1,1);
+		material = NULL;
+		scatter = false;
+	}
+
+	/** Konstruktor med riktning och position */
+	Ray(const Vector3& p, const Vector3& d, Material* _material)
+	{
+		/* Tilldela enligt invariablerna */
+		position = p;
+		direction = d;
+		directionInv = Vector3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z);
+
+		/* Standard-värden */
+		refractionIndex = 1.0f;
+		depth = 0;
+		color = Vector3(1, 1, 1);
+		material = _material;
+		scatter = false;
 	}
 	
 	/** Get a ray from a pixel position */
@@ -63,7 +89,7 @@ class Ray
 		direction = Vector3(x/scale,y/scale,1).norm();
 		directionInv = Vector3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z); 
 		color = Vector3();
-		
+		scatter = false;
 	}
 	
 	/* Get a position easily */
@@ -74,3 +100,4 @@ class Ray
 	
 	
 };
+#endif

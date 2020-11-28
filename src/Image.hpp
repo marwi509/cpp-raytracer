@@ -5,15 +5,18 @@
 #include <cstdlib>
 #include "Point.hpp"
 
+
 #ifndef _IMAGEHPP
 #define _IMAGEHPP
 
 class Image
 {
-	/* Array with pixels */
-	unsigned int* pixels;
+	
 	
 	public:
+
+	/* Array with pixels */
+	unsigned int* pixels;
 	
 	/* Size of the image */
 	int height,width;
@@ -52,6 +55,8 @@ class Image
 	
 	/** Funktion för att skriva pixlarna till en ppm-bild */
 	bool writeImage(const char* filename);
+
+	void render();
 	
 	/** Mosaic */
 	void createMosaic(const char* filename, int tilesize);

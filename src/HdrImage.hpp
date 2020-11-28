@@ -49,10 +49,11 @@ class HdrImage {
 		for(int i = 0; i < width; i ++) {
 			for(int j = 0; j < height; j ++) {
 				Vector3 res = getPixel(i, j) + v;
-				if(res.x < 0.0) res.x = 0.0;// else std::cout << "AAAH!";
-				if(res.y < 0.0) res.y = 0.0;//else std::cout << "AAAH!";
-				if(res.z < 0.0) res.z = 0.0;//else std::cout << "AAAH!";
-				newImage.setPixel(i, j, res);
+				float x = res.x, y = res.y, z = res.z;
+				if(res.x < 0.0) x = 0.0;// else std::cout << "AAAH!";
+				if(res.y < 0.0) y = 0.0;//else std::cout << "AAAH!";
+				if(res.z < 0.0) z = 0.0;//else std::cout << "AAAH!";
+				newImage.setPixel(i, j, Vector3(x,y,z));
 			}
 		}
 		return newImage;
@@ -63,10 +64,11 @@ class HdrImage {
 		for(int i = 0; i < width; i ++) {
 			for(int j = 0; j < height; j ++) {
 				Vector3 res = getPixel(i, j) - otherImage.getPixel(i,j);
-				if(res.x < 0.0) res.x = 0.0;// else std::cout << "AAAH!";
-				if(res.y < 0.0) res.y = 0.0;//else std::cout << "AAAH!";
-				if(res.z < 0.0) res.z = 0.0;//else std::cout << "AAAH!";
-				newImage.setPixel(i, j, res);
+				float x = res.x, y = res.y, z = res.z;
+				if(res.x < 0.0) x = 0.0;// else std::cout << "AAAH!";
+				if(res.y < 0.0) y = 0.0;//else std::cout << "AAAH!";
+				if(res.z < 0.0) z = 0.0;//else std::cout << "AAAH!";
+				newImage.setPixel(i, j, Vector3(x, y, z));
 			}
 		}
 		return newImage;
@@ -77,10 +79,11 @@ class HdrImage {
 		for(int i = 0; i < width; i ++) {
 			for(int j = 0; j < height; j ++) {
 				Vector3 res = getPixel(i, j) + otherImage.getPixel(i,j);
-				if(res.x < 0.0) res.x = 0.0;// else std::cout << "AAAH!";
-				if(res.y < 0.0) res.y = 0.0;//else std::cout << "AAAH!";
-				if(res.z < 0.0) res.z = 0.0;//else std::cout << "AAAH!";
-				newImage.setPixel(i, j, res);
+				float x = res.x, y = res.y, z = res.z;
+				if(res.x < 0.0) x = 0.0;// else std::cout << "AAAH!";
+				if(res.y < 0.0) y = 0.0;//else std::cout << "AAAH!";
+				if(res.z < 0.0) z = 0.0;//else std::cout << "AAAH!";
+				newImage.setPixel(i, j, Vector3(x, y, z));
 			}
 		}
 		return newImage;
@@ -110,7 +113,7 @@ class HdrImage {
 	void initializeBuffers() {
 		pixels = new Vector3*[width];
 		for(int i = 0; i < width; i ++) {
-			pixels[i] = new Vector3[height];
+			pixels[i] = new Vector3[height]();
 		}
 	}
 	
@@ -193,10 +196,12 @@ class HdrImage {
 	}
 	
 	HdrImage bloom(int smoothSize, float weight) {
+		std::cout << "Adding bloom" << std::endl;
 		return (*this - Vector3(1,1,1)).smooth(smoothSize) * weight + *this;
 	}
 	
 	Image toImage() {
+		std::cout << "Converting to Image" << std::endl;
 		Image imageOut(width, height);
 		for(int i = 0; i < width; i ++) {
 			for(int j = 0; j < height; j ++) {

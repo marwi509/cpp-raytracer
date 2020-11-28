@@ -5,6 +5,8 @@
  * 	Doesn't include all information, since its vertices are just ints pointing to the vertex list
  * 
  * */
+#ifndef _Polygon_HPP
+#define _Polygon_HPP
 class Polygon
 {
 	public:
@@ -30,3 +32,5 @@ class Polygon
 
 	}
 };
+
+#endif

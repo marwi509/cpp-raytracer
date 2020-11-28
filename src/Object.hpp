@@ -3,12 +3,18 @@
  * Innehåller främst en triangel-lista och en vertex-lista
  * 	samt lite info om hur den bör renderas
  * */
-
+#ifndef _Object_HPP
+#define _Object_HPP
 #include "Material.hpp"
+#include "Vertex.hpp"
+#include "Cell.hpp"
+#include "Ray.hpp"
 
 const int X_AXIS = 1;
 const int Y_AXIS = 2;
 const int Z_AXIS = 3;
+
+
 
 class Object
 {
@@ -139,3 +145,5 @@ inline bool pnpoly(unsigned char npol, float *xp, float *yp, float x, float y)
 	}
 	return c;
 }
+
+#endif

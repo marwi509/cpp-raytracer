@@ -17,7 +17,7 @@ bool rejectSquircle(float radius, float x, float y)
 
 bool rejectSquare(float radius, float x, float y)
 {
-	return max(fabsf(x),fabsf(y)) < radius;
+	return max(fabsf(x),fabsf(y), -10000.0f) < radius;
 }
 
 bool rejectElips(float radius, float x, float y)
@@ -41,11 +41,11 @@ bool parametricReject(int variant, float radius, float x, float y)
 bool ngonReject(int npol, float radius, float x, float y)
 {
 	//npol += 2;
-	float xpositions[npol];
-	float ypositions[npol];
+	float *xpositions = new float[npol];
+	float *ypositions = new float[npol];
 	int rrr = 0;
 	
-	for(float theta2 = 0.0f;  rrr < npol; theta2 += 2.0f * M_PI / float(npol))
+	for(float theta2 = 0.0f;  rrr < npol; theta2 += 2.0f * 3.14 / float(npol))
 	{
 		xpositions[rrr] = radius * cos(theta2);
 		ypositions[rrr++] = radius * sin(theta2);

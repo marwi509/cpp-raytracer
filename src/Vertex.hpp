@@ -1,4 +1,6 @@
 
+#ifndef _VERTEX_HPP
+#define _VERTEX_HPP
 
 class Vertex
 {
@@ -22,3 +24,6 @@ class Vertex
 	/* Tom konstruktor */
 	Vertex(){}
 };
+
+
+#endif

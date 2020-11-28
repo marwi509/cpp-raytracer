@@ -1,32 +1,53 @@
-#include "Vector3.hpp"
-#include <cstdlib>
+#ifndef _SurfacePoint_HPP
+#define _SurfacePoint_HPP
 
-/** Class for a surface point, for the bidirectional path tracing that currently does not work */
+#include "Vector3.hpp"
+#include "Polygon.hpp"
+#include "Object.hpp"
+
+
 
 class SurfacePoint
 {
 	public:
-	Vector3
-		position,
-		incomingDirection,
-		outgoingDirection,
-		normal;
+		const Vector3
+			position,
+			normal,
+			tangent,
+		incomingDirection;
 		
 	const Material* material;
-	SurfacePoint *prev, *next;
-	const Polygon* poly;
-	Vector3 color;
-	Vector3 colorpre;
+	const Polygon* polygon;
+	const Object* object;
+	bool light;
+	int lightIndex = -1;
 	
-	
-	SurfacePoint()
-	{
-		prev = next = NULL;
+	SurfacePoint(
+		const Vector3& _position,
+		const Vector3& _normal,
+		const Vector3& _incomingDirection,
+		const Material* _material,
+		const Polygon* _polygon,
+		const Object* _object,
+		const bool _light
+	): position(_position), 
+		normal(_normal), 
+		tangent(normal.cross(Vector3(randf(), randf(), randf()).norm())), 
+		incomingDirection(_incomingDirection), 
+		material(_material), 
+		object(_object), 
+		light(_light) {
+		/*position = _position;
+		normal = _normal;
+		tangent = normal.cross(Vector3(randf(), randf(), randf()).norm());
+		incomingDirection = _incomingDirection;
+		material = _material;
+		light = _light;*/
 	}
-	
-	SurfacePoint(const Vector3& pos, const Vector3& inc, const Vector3& out, const Material* mat, const Polygon* p) : 
-				position(pos), incomingDirection(inc), outgoingDirection(out), material(mat), poly(p)
-	{
-		prev = next = NULL;
+
+	static SurfacePoint* SurfacePoint::LIGHT(const Material* _material) {
+		return new SurfacePoint(Vector3(), Vector3(), Vector3(), _material, NULL, NULL, true);
 	}
+
 };
+#endif

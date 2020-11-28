@@ -16,6 +16,7 @@ class LargeHdrImage {
 	public:
 	
 	HdrImage toHdrImage() {
+		std::cout << "Converting to HDR" << std::endl;
 		HdrImage newImage(this -> resultingWidth, this -> resultingHeight);
 		for(int i = 0; i < resultingWidth; i ++) {
 			for(int j = 0; j < resultingHeight; j ++) {
@@ -176,7 +177,12 @@ class LargeHdrImage {
 			for(int j = 0; j < MSAA; j ++) {
 				int innerX = x * MSAA + i;
 				int innerY = y * MSAA + j;
-				pixelValue = pixelValue + getPixel(innerX, innerY) * (1.0 / (double) samples[innerX][innerY]);
+				if (samples[innerX][innerY] == 0) {
+				}
+				else {
+					
+					pixelValue = pixelValue + getPixel(innerX, innerY) * (1.0 / (double)samples[innerX][innerY]);
+				}
 			}
 		}
 		pixelValue =  pixelValue * (1.0 / (double)(MSAA * MSAA));

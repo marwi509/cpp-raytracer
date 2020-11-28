@@ -2,7 +2,6 @@
 #define _MATERIAL_HPP
 
 #include "Noise3.hpp"
-#include <cstdlib>
 
 /** Class containing material information for an object, like color, reflectivity, transparency and refraction index */
 
@@ -39,6 +38,17 @@ class Material
 		materialOut -> reflective = 1.0f;
 		return materialOut;
 	}
+
+	static Material* SCATTERING(const Vector3& scatteringColor, const Vector3& absorptionColor) {
+		Material* materialOut = new Material();
+		materialOut->specularColor = scatteringColor;
+		materialOut->diffuseColor = absorptionColor;
+		materialOut->refractive = 1.0f;
+		materialOut->refrI = 1.5f;
+		materialOut->scatteringCoefficient = 0.0f;
+		materialOut->absorptionCoefficient = 0.05f;
+		return materialOut;
+	}
 	
 	static Material* DIFFUSE(const Vector3 diffuseColor) {
 		Material* materialOut = new Material(diffuseColor);
@@ -57,21 +67,25 @@ class Material
 		specularColor;
 		
 	float
-	
+
 		/* How reflective the object is */
 		reflective,
-		
+
 		/* How rough the specular surface is, 0 being a perfect mirror and 0.5 being really diffuse */
 		blur,
-		
+
 		/* refraction-index */
 		refrI,
-		
+
 		/* How transparent the object is */
-		refractive;
+		refractive,
+
+		scatteringCoefficient,
+
+		absorptionCoefficient;
 	
 	
-	bool metal, texture;
+	bool metal, texture, light;
 	
 	/* Noise texture for the object, not always used */
 	Noise3* noise;
@@ -91,6 +105,7 @@ class Material
 		refrI = 1.0f;
 		metal = texture = check = brick = false;
 		checkfreq = 0.1f;
+		scatteringCoefficient = 0.0f;
 	}
 	
 	/** Empty constructor */
@@ -103,6 +118,7 @@ class Material
 		refrI = 1.0f;
 		metal = texture = check = brick = false;
 		checkfreq = 0.1f;
+		scatteringCoefficient = 0.0;
 	}
 };
 

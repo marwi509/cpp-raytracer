@@ -8,7 +8,7 @@
 class Vector3ld
 {
 	public:
-	double x,y,z;
+	long double x,y,z;
 	
 	/* Tom konstruktor */
 	Vector3ld()
@@ -17,7 +17,7 @@ class Vector3ld
 	}
 	
 	/* Konstruktor som tar tre floats */
-	Vector3ld(long double xIn, long double yIn, long double zIn)
+	Vector3ld(double xIn, double yIn, double zIn)
 	{
 		x = xIn;
 		y = yIn;
@@ -25,7 +25,7 @@ class Vector3ld
 	}
 	
 	/* Skalärprodukt */
-	long double dot(const Vector3ld& v) const
+	double dot(const Vector3ld& v) const
 	{
 		return x*v.x + y*v.y + z*v.z;
 	}
@@ -43,7 +43,7 @@ class Vector3ld
 	}
 	
 	/* Multiplikation med flyttal */
-	Vector3ld operator*(long double f) const
+	Vector3ld operator*(double f) const
 	{
 		return Vector3ld(x*f, y*f, z*f);
 	}
@@ -92,7 +92,7 @@ class Vector3ld
 		return Vector3ld(std::floor(x), std::floor(y), std::floor(z));
 	}
 	
-	Vector3ld operator=(long double f)
+	Vector3ld operator=(double f)
 	{
 		return Vector3ld(f,f,f);
 	}

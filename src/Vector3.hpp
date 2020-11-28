@@ -10,19 +10,24 @@ class Vector3
 	public:
 	float x,y,z;
 	
-	/* Tom konstruktor */
-	Vector3()
-	{
-		x = y = z = 0.0f;
-	}
-	
+	Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
+
 	/* Konstruktor som tar tre floats */
-	Vector3(float xIn, float yIn, float zIn)
+	Vector3(float xIn, float yIn, float zIn) :x(xIn), y(yIn), z(zIn)
 	{
-		x = xIn;
-		y = yIn;
-		z = zIn;
 	}
+
+	/*const Vector3 operator=(const Vector3& right) {
+		if (this == &right) return *this;
+
+		// manually call the destructor of the old left-side object
+		// (`this`) in the assignment operation to clean it up
+		//this->~A();
+		// use "placement new" syntax to copy-construct a new `A` 
+		// object from `right` into left (at address `this`)
+		new (this) Vector3(right);
+		return *this;
+	}*/
 	
 	/* Skalärprodukt */
 	float dot(const Vector3& v) const
@@ -105,8 +110,9 @@ class Vector3
 		return z;
 		
 	}
-
 };
+
+
 
 
 float max(float f1, float f2, float f3);
