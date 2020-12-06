@@ -145,6 +145,15 @@ class LargeHdrImage {
 			samples[i] = new int[height]();
 		}
 	}
+
+	void clearBuffers() {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				pixels[i][j] = Vector3ld();
+				samples[i][j] = 0;
+			}
+		}
+	}
 	
 	
 	LargeHdrImage smooth(int r) {

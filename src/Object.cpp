@@ -671,8 +671,8 @@ void Object::addTriangle(int a, int b, int c)
 	/* If the array is not allocated, allocate */
 	if (tCapacity == 0)
 	{
-		triangleList = new Polygon[10];
-		tCapacity = 10;
+		triangleList = new Polygon[12];
+		tCapacity = 12;
 	}
 
 	/* If the array is full, double the capacity */
@@ -792,34 +792,34 @@ void Object::makeUnitBox()
 	addVertex(Vector3(-1.0f, 1.0f, 1.0f));
 	addVertex(Vector3(-1.0f, 1.0f, -1.0f));
 
-	addQuad(0, 1, 2, 3);
-	//addTriangle(0,1,2);
-	//addTriangle(0,3,2);
+	//addQuad(0, 1, 2, 3);
+	addTriangle(0,1,2);
+	addTriangle(3,0,2);
 
-	addQuad(4, 7, 6, 5);
-	//addTriangle(4,7,6);
-	//addTriangle(4,5,6);
+	//addQuad(4, 7, 6, 5);
+	addTriangle(4,7,6);
+	addTriangle(5,4,6);
 
 	//addQuad(0, 4, 5, 1);
-	//addTriangle(0,4,5);
-	//addTriangle(0,1,5);
+	addTriangle(0,4,5);
+	addTriangle(1,0,5);
 
-	addQuad(1, 5, 6, 2);
-	//addTriangle(1,5,6);
-	//addTriangle(1,2,6);
+	//addQuad(1, 5, 6, 2);
+	addTriangle(1,5,6);
+	addTriangle(2,1,6);
 
 	//addQuad(2, 6, 7, 3);
-	//addTriangle(1,6,7);
-	//addTriangle(1,3,7);
+	addTriangle(2,6,7);
+	addTriangle(3,2,7);
 
-	addQuad(4, 0, 3, 7);
-	//addTriangle(5,1,4);
-	//addTriangle(5,7,4);
+	//addQuad(4, 0, 3, 7);
+	addTriangle(0,3,4);
+	addTriangle(7,3,4);
 
 	SMOOTH = false;
 	USE_AAB = false;
 
-	material->diffuseColor = Vector3(1, 1, 1);
+	//material->diffuseColor = Vector3(1, 1, 1);
 
 	boundingBox = new Cell();
 	for (int i = 0; i < nrTriangles; i++)
@@ -828,6 +828,7 @@ void Object::makeUnitBox()
 	}
 
 }
+
 
 
 /** Constructor that reads a mesh from an obj-file */
