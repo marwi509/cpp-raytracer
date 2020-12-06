@@ -23,6 +23,13 @@ class Material
 		materialOut -> reflective = 1.0f;
 		return materialOut;
 	}
+
+	static Material* MIRROR(const Vector3& color) {
+		Material* materialOut = new Material();
+		materialOut->specularColor = color;
+		materialOut->reflective = 1.0f;
+		return materialOut;
+	}
 	
 	static Material* GLASS(const Vector3& color) {
 		Material* materialOut = new Material();

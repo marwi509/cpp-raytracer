@@ -1,25 +1,33 @@
 
+#include "Camera.hpp"
+
 class RenderSettings {
 	
 	private:
 	int width;
 	int height;
-	double focalDistance;
-	double apertureSize;
+	int msaa;
+	Camera* camera;
 	
 	public:
 	RenderSettings() {
 		width = 1024;
 		height = 600;
-		focalDistance = 14.0;
-		apertureSize = 0.6;
+		msaa = 2;
+		camera = new Camera(msaa * width, msaa * height, 14.0, 0.6, Vector3());
 	}
 	
-	RenderSettings(int width, int height, double focalDistance, double apertureSize) {
+	RenderSettings(
+		int width,
+		int height, 
+		int msaa, 
+		double focalDistance,
+		double apertureSize,
+		const Vector3& cameraPosition) {
 		this -> width = width;
 		this -> height = height;
-		this -> focalDistance = focalDistance;
-		this -> apertureSize = apertureSize;
+		this->msaa = msaa;
+		this->camera = new Camera(width * msaa, height * msaa, focalDistance, apertureSize, cameraPosition);
 	}
 	
 	int getWidth() const {
@@ -29,12 +37,16 @@ class RenderSettings {
 	int getHeight() const {
 		return height;
 	}
-	
-	double getFocalDistance() const {
-		return focalDistance;
+
+	int getMsaa() const {
+		return msaa;
 	}
 	
-	double getApertureSize() const {
-		return apertureSize;
+	Camera* getCamera() const {
+		return camera;
+	}
+
+	void rotateCamera(int axis, float degrees) {
+		camera->rotate(axis, degrees);
 	}
 };

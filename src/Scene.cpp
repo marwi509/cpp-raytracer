@@ -25,7 +25,6 @@
 #include "Check.hpp"
 #include "SurfacePoint.hpp"
 #include "Noise3.hpp"
-#include "Aperture.hpp"
 #include "HdrImage.hpp"
 #include "LargeHdrImage.hpp"
 
@@ -103,334 +102,33 @@ void Scene::printInfo() const
 		<< endl 
 		<< "Totalt antal trianglar: " << sumTriangles
 		<< endl
-		<< "Fullscreen multisampling :" << MSAA << "x" << MSAA
+		//<< "Fullscreen multisampling :" << MSAA << "x" << MSAA
 		<< endl;
 }
 
-/* Get a pixel color with standard path tracing, implicit light paths only */
-Vector3 Scene::samplePaths(const int samples, const Vector3& normal, const Vector3& tangent, const Vector3& position, Polygon* PCurr, const Material* material, const Vector3& dirIn, int depth, int& samplesTotal)
-{
-	/* Abort if the depth is too high (probably means it got stuck somewhere) */
-	if(depth > 200)
-		return Vector3();
-	
-	/* The color that will be returned */
-	Vector3 colorOut = Vector3();
-	
-	/* Loop through all samples */
-	for(int i = 0; i < samples; i ++)
-	{
-		
-		/* Sum the reflectance of the material */
-		float reflectivity = material -> diffuseColor.sum();
-		
-		/* Get a random number */
-		float decision = randf() * 3.0f;
-		
-		/* Russian roulette */
-		if(reflectivity > decision)
-		{
-			/* Get a new direction */
-			Vector3 direction = getCosWDirection(normal, tangent);
-			
-			
-			int errCheck = 0;
-			
-			/* If the direction points into the triangle, get a new direction */
-			while(direction.dot(PCurr -> normal) < 0.0f)
-			{
-				direction = getCosWDirection(normal, tangent);
-				if(errCheck ++ > 100)
-				{
-					return Vector3();
-				}
-			}
-			
-			/* New ray */
-			Ray R(position, direction);
-			
-			/* normalIn används som utvariabel från traverseTree, ntemp blir den "riktiga" normalen */
-			Vector3 normalIn = Vector3(), ntemp = Vector3();
-			
-			/* Temporär variabel som används för att lagra materialet från det objekt man träffar */
-			Material* materialIn;
-			
-			/* Temporär variabel som innehåller polygonen man träffar */
-			Polygon* pOut;
-			
-			/* Sätt t till ett stort värde */
-			float t = 1e10;
-			
-			/* hit är sann om man träffat något, light är sann om det man träffat är en ljuskälla */
-			bool hit = false;
-			bool light = false;
-			
-			/* Loopa igenom alla objekt */
-			for(unsigned int k = 0; k < vObj.size(); k ++)
-			{
-
-				Polygon* temp = vObj[k] -> traverseTree(R, t, normalIn, vObj[k] -> boundingBox, PCurr);
-				
-				/* temp blir null om man inte träffat något */
-				if(temp != NULL)
-				{
-					hit = true;
-					ntemp = normalIn;
-					materialIn = vObj[k] -> material;
-					pOut = temp;
-				}
-			}
-			
-			/* Loopa igenom alla ljuskällor, samma sak fast man behöver inte bry sig om att spara polygonen och objektet */
-			for(unsigned int k = 0; k < vLight.size(); k ++)
-			{
-				if(vLight[k] -> traverseTree(R, t, normalIn, vLight[k]->boundingBox, PCurr))
-				{
-					hit = true;
-					light = true;
-					ntemp = normalIn;
-					materialIn = vLight[k] -> material;
-				}
-			}
-			
-			if(hit && !light)
-			{
-								
-				if(R.direction.dot(pOut -> normal) > 0.0f)
-				{
-					pOut -> normal = Vector3() - pOut -> normal;
-					ntemp = Vector3() - ntemp;
-				}
-				if(R.direction.dot(ntemp) > 0.0f)
-				{
-					ntemp = Vector3() - ntemp;
-				}
-				
-			}
-			
-			/* Har den träffat ett ljus, returnera ljusets färg */
-			if(light)
-			{
-				//if(R.direction.y > 0)
-				colorOut = colorOut + materialIn -> diffuseColor * material -> diffuseColor;
-			}
-			
-			/* Har den träffat ett objektet, sampla vidare därifrån */
-			if(hit && !light)
-			{
-				//Vector3 tangentIn = (objTemp -> vertexList[pOut->vertices[0]].position - objTemp -> vertexList[pOut->vertices[1]].position).norm();
-				Vector3 tangentIn = ntemp.cross(Vector3(randf(), randf(), randf())).norm();
-				colorOut = colorOut + (material -> diffuseColor * (3.0f / material -> diffuseColor.sum())) * samplePaths(1, ntemp, tangentIn, R*t, pOut,  materialIn, dirIn, depth + 1, samplesTotal);
-			}
-			
-			
-		} // if reflectivity > decision
-	} // for i
-	
-	return colorOut;
-}
-
-
-/** render scene with path tracing */
-void Scene::renderScenePath(const RenderSettings& renderSettings, const char* filename)
-{
-	int c_image = 0;
-	cout << "Rendering to filename " << filename << endl;
-	int samplesPP = 1;
-	
-	/* Allocate memory for rgb values (probably a lot bigger than it needs to be) */
-	LargeHdrImage largeHdrImage(renderSettings.getWidth(), renderSettings.getHeight(), MSAA);
-	printInfo();
-	
-	/* Render until the user aborts */
-	for(;;)
-	{
-		#pragma omp parallel for
-		/* y-led */
-		for(int i = 0; i < renderSettings.getHeight(); i ++)
-		{
-			/* x-led */
-			for(int j = 0; j < renderSettings.getWidth(); j ++)
-			{
-				
-				
-				int samplesTotal = 0;//samplesPP * MSAA * MSAA;
-				
-				/* MSAA i y-led */
-				for(unsigned int m = 0; m < MSAA; m ++)
-				{
-					/* MSAA i x-led */
-					for(unsigned int b = 0; b < MSAA; b ++)
-					{
-						if (randf() <= 0.55f) {
-							//continue;
-						}
-						/* Temporary variable for color */
-						Vector3 color = Vector3();
-						
-						/* Create a ray */
-						Ray R = Ray(i*MSAA+m,j*MSAA+b,renderSettings.getHeight()*MSAA,renderSettings.getWidth()*MSAA);
-						
-						
-						/* Simulate depth of field */
-						Vector3 focal_point = R*renderSettings.getFocalDistance();
-						
-						int err_check = 0;
-						float x_random, y_random;
-						do
-						{
-							x_random = (randf() - randf()) * renderSettings.getApertureSize();
-							y_random = (randf() - randf()) * renderSettings.getApertureSize();
-						}while(!parametricReject(SQUIRCLE, renderSettings.getApertureSize(), x_random, y_random) 
-							&& err_check++ < 100 && renderSettings.getApertureSize() > 0.01f);
-						
-						Vector3 new_pos = R.position + Vector3(x_random,y_random, 0) ;
-						
-						// new ray
-						R = Ray(new_pos, (focal_point - new_pos).norm());
-						
-						// material of hit object
-						Material* material;
-						
-						bool hit = false, light = false;
-						
-						/* Normal used as the returned normal, ntemp is the final normal */
-						Vector3 normal = Vector3(), ntemp = Vector3();
-						
-						Object* objTemp;
-						
-						/* Define t as a large number */
-						float t = 1e10;
-						
-						Polygon* PCurr = NULL;
-						
-						/* Loop through all objects */
-						for(unsigned int k = 0; k < vObj.size(); k ++)
-						{
-							
-							Polygon* temp;
-							
-							/* Traverse the kd-tree */
-							temp = vObj[k] -> traverseTree(R, t, normal, vObj[k]->boundingBox, PCurr);
-							
-							/* Nothing hit? */
-							if(temp != NULL)
-							{
-								hit = true;
-								ntemp = normal;
-								material = temp -> material;
-								objTemp = vObj[k];
-								PCurr = temp;
-							}
-						}
-						
-						/* Loop through all light sources */
-						for(unsigned int k = 0; k < vLight.size(); k ++)
-						{
-							
-							/* A light source hit? */
-							if(vLight[k] -> traverseTree(R, t, normal, vLight[k]->boundingBox, PCurr))
-							{
-								hit = true;
-								light = true;
-								ntemp = normal;
-								material = vLight[k] -> material;
-							}
-						}
-						
-						if(hit && !light)
-						{
-							/* Flip the normal if the backside was hit */
-							if(R.direction.dot(PCurr -> normal) > 0.0f)
-							{
-								PCurr -> normal = Vector3() - PCurr -> normal;
-								ntemp = Vector3() - ntemp;
-							}
-							
-							if(R.direction.dot(ntemp) > 0.0f)
-							{
-								ntemp = Vector3() - ntemp;
-							}
-						}
-						
-						/* Start sampling */
-						if(!light && hit)
-						{
-							/* Get a tangent */
-							Vector3 tangent = ntemp.cross(Vector3(randf(), randf(), randf())).norm();
-							
-							/* Sample! */
-							color = sampleBiDirPaths(samplesPP, ntemp, tangent, Ray(R.position, R.direction), PCurr, material, 0, samplesTotal, *objTemp, R*t);
-						}
-						
-						/* If a light source was hit, just return the color of the light */
-						if (hit && light)
-						{
-							color = material -> diffuseColor * (float) samplesPP;
-						}
-						
-						largeHdrImage.addSample(color, j, i, b, m);
-					}	//for b
-				}	// for m
-			}	// for j
-			
-			/* Print some info */
-			fprintf(stderr, "\r%f	Antal samples: %d", 100.0f * 
-				(float) (i+1) / (float) renderSettings.getHeight(), c_image * MSAA * MSAA);
-			
-		} // for i
-		
-		c_image++;
-		largeHdrImage.toHdrImage().bloom(20, 0.2f).toImage().render();//.writeImage(filename);
-	}
-}
-
-Vector2 randomizeAperturePosition(float apertureSize) {
-	int err_check = 0;
-	float x_random, y_random;
-	do
-	{
-		x_random = (randf() - randf()) * apertureSize;
-		y_random = (randf() - randf()) * apertureSize;
-	} while (!parametricReject(CIRCLE, apertureSize, x_random, y_random)
-		&& err_check++ < 100 && apertureSize > 0.01f);
-
-	return Vector2(x_random, y_random);
-}
-
-Ray getDofAdjustedRay(const Ray& originalRay, const RenderSettings& renderSettings) {
-	/* Simulate depth of field */
-	Vector3 focal_point = originalRay*renderSettings.getFocalDistance();
-
-	Vector2 randomizedOffset = randomizeAperturePosition(renderSettings.getApertureSize());
-	Vector3 new_pos = originalRay.position + Vector3(randomizedOffset.x, randomizedOffset.y, 0);
-
-	return Ray(new_pos, (focal_point - new_pos).norm());
-}
-
-void Scene::renderSceneNew(const RenderSettings& renderSettings) {
+void Scene::renderSceneNew(const RenderSettings& renderSettings, bool open) {
 	int c_image = 0;
 	int samplesPP = 1;
 
 	/* Allocate memory for rgb values (probably a lot bigger than it needs to be) */
-	LargeHdrImage largeHdrImage(renderSettings.getWidth(), renderSettings.getHeight(), MSAA);
+	LargeHdrImage largeHdrImage(renderSettings.getWidth(), renderSettings.getHeight(), renderSettings.getMsaa());
 	printInfo();
-	
 
-	
-
+	int MSAA = renderSettings.getMsaa();
 	/* Render until the user aborts */
 	for (;;)
 	{
+		//largeHdrImage.clearBuffers();
+		//renderSettings.getCamera()->position = renderSettings.getCamera()->position - Vector3(0, 0.1, 0);
 		int currentIndex = 0;
 		int rowsRendered = 0;
 
-		#pragma omp parallel
+#pragma omp parallel
 		/* y-led */
-		while(currentIndex < renderSettings.getHeight())
+		while (currentIndex < renderSettings.getHeight())
 		{
 			int index;
-			#pragma omp critical
+#pragma omp critical
 			index = currentIndex++;
 			/* x-led */
 			for (int j = 0; j < renderSettings.getWidth(); j++)
@@ -446,15 +144,17 @@ void Scene::renderSceneNew(const RenderSettings& renderSettings) {
 					for (unsigned int b = 0; b < MSAA; b++)
 					{
 						/* Create a ray */
-						Ray R = Ray(index *MSAA + m, j*MSAA + b, renderSettings.getHeight()*MSAA, renderSettings.getWidth()*MSAA);
-						Ray newRay = getDofAdjustedRay(R, renderSettings);
-						largeHdrImage.addSample(sample(newRay, 0, false), j, index, b, m);
+						//Ray R = Ray(index * renderSettings.getMsaa() + m, j* renderSettings.getMsaa() + b, renderSettings.getHeight()*MSAA, renderSettings.getWidth()*MSAA);
+						//Ray newRay = getDofAdjustedRay(R, renderSettings);
+
+						Ray ray = renderSettings.getCamera()->getRay(index * MSAA + m, j * MSAA + b);
+						largeHdrImage.addSample(sample(ray, 0, false, open), j, index, b, m);
 
 					}	//for b
 				}	// for m
 			}	// for j
 			rowsRendered++;
-				/* Print some info */
+			/* Print some info */
 			fprintf(stderr, "\r%f	Antal samples: %d", 100.0f *
 				(float)(rowsRendered) / (float)renderSettings.getHeight(), c_image * MSAA * MSAA);
 
@@ -465,33 +165,51 @@ void Scene::renderSceneNew(const RenderSettings& renderSettings) {
 	}
 }
 
-Vector3 Scene::sample(Ray& ray, int errorCheck, bool diffuse) 
+Vector3 Scene::sample(Ray& ray, int errorCheck, bool diffuse, bool open)
 {
-	if (errorCheck > 100) {
+	if (errorCheck > 10) {
 		return Vector3();
 	}
 
 	SurfacePoint* surfacePoint = castRay(ray);
 	if (surfacePoint == NULL) {
-		return Vector3();
+		return open ? Vector3(1,1,1) : Vector3(1,1,1);
 	}
 
 	const Material* material = surfacePoint->material;
 	Vector3 position = surfacePoint->position;
 	Vector3 normal = surfacePoint->normal;
 	
+
 	if (surfacePoint->light) {
 		delete surfacePoint;
-		return diffuse ? Vector3() : Vector3(material->diffuseColor);
+		return (diffuse && !open) ? Vector3() : Vector3(material->diffuseColor);
 		//return  Vector3(material->diffuseColor);
 	}
 	else {
+		float compensationDiffuse = 1.0f;
+		float compensationReflective = 1.0f;
+		bool isPorcelain = !open && (material->reflective > 0.05f && material->reflective < 0.2f && material->refractive == 0.0f);
+		bool shouldReflectOverride = false;
+
+		if (isPorcelain) {
+			float reflectProb = 0.9f;
+
+			compensationDiffuse = (1.0f - material->reflective) / (1.0f - reflectProb);
+			compensationReflective = material->reflective / reflectProb;
+			if (randf() < reflectProb) {
+				shouldReflectOverride = true;
+			}
+			//shouldReflectOverride = true;
+		}
+
 		float rouletteDecisionNumber = randf();
 		float diffuseCutoff = surfacePoint->material->reflective + surfacePoint->material->refractive;
 		
-		if (rouletteDecisionNumber >= diffuseCutoff) {
+		if (!shouldReflectOverride && rouletteDecisionNumber >= diffuseCutoff) {
 			Vector3 diffuseColor = getDiffuseColor(surfacePoint);
-			Vector3 explicitContribution = diffuseColor* sampleExplicitLightPaths(*surfacePoint);
+			//return diffuseColor;
+			Vector3 explicitContribution = !open ? diffuseColor * sampleExplicitLightPaths(*surfacePoint) * compensationDiffuse : Vector3();
 			float reflectivity = diffuseColor.sum();
 			float decision = randf() * 3.0f;
 			
@@ -499,7 +217,7 @@ Vector3 Scene::sample(Ray& ray, int errorCheck, bool diffuse)
 				Vector3 tangent = normal.cross(Vector3(randf(), randf(), randf()).norm());
 				Vector3 newDirection = getCosWDirection(normal, tangent);
 				delete surfacePoint;
-				return explicitContribution + diffuseColor * (3.0f / (diffuseColor.sum())) * sample(Ray(position, newDirection), errorCheck++, true);
+				return explicitContribution + diffuseColor * (3.0f / reflectivity) * sample(Ray(position, newDirection), errorCheck+1, true, open) * compensationDiffuse;
 
 			}
 			delete surfacePoint;
@@ -508,28 +226,31 @@ Vector3 Scene::sample(Ray& ray, int errorCheck, bool diffuse)
 		else if (rouletteDecisionNumber < material->refractive) {
 			Vector3 newDirection = getRefractedDirection(surfacePoint);
 			delete surfacePoint;
-			return material->specularColor* sample(Ray(position, newDirection), errorCheck++, false);
+			return material->specularColor* sample(Ray(position, newDirection), errorCheck+1, false, open);
 		}
 		else {
 			int err_check = 0;
 			Vector3 dirIn = Vector3() - surfacePoint->incomingDirection;
 			Vector3 direction2 = (
-				Vector3() -
+				//Vector3() -
 				(((surfacePoint->normal * 2.0) *
 				(surfacePoint->normal.dot(dirIn))) -
 					dirIn))
 				.norm();
-			Vector3 newDirection = getCosWPowerDirection(direction2, direction2.cross(Vector3(rand(), rand(), rand()).norm()).norm(), surfacePoint->material->blur);
+			/*Vector3 newDirection = getCosWPowerDirection(direction2, direction2.cross(Vector3(rand(), rand(), rand()).norm()).norm(), surfacePoint->material->blur);
 			while (newDirection.dot(surfacePoint->normal) < 0.0f && err_check++ < 100)
 			{
 				newDirection = getCosWPowerDirection(direction2, direction2.cross(Vector3(rand(), rand(), rand()).norm()).norm(), surfacePoint->material->blur);
+			}*/
+			if (direction2.dot(surfacePoint->normal) < 0.0f) {
+				direction2 = Vector3() - direction2;
 			}
 			delete surfacePoint;
-			return material->specularColor*sample(Ray(position, newDirection), errorCheck++, false);
+			return material->specularColor*sample(Ray(position, direction2), errorCheck+1, false, open) * compensationReflective;
 		}
 	}
 	delete surfacePoint;
-	return Vector3();
+	return Vector3(1,1,1)* 1000;
 }
 
 Vector3 Scene::getDiffuseColor(const SurfacePoint* surfacePoint) {
@@ -669,11 +390,9 @@ Vector3 Scene::getRefractedDirection(const SurfacePoint* surfacePoint) {
 
 	/* Fresrefract is the probability that the ray is refracted */
 	float fresRefract = 1.0f - (Rp*Rp + Rs*Rs) * 0.5f;
-	bool refractt = false;
-	Vector3 direction = Vector3();
 	/* Reflect */
 	if (randf() > fresRefract) {
-		Vector3 direction2 = (Vector3() - (((normalPos * 2.0) * normalPos.dot(surfacePoint->incomingDirection))) - surfacePoint->incomingDirection).norm();
+		Vector3 direction2 = ((((normalPos * 2.0) * normalPos.dot(surfacePoint->incomingDirection))) - surfacePoint->incomingDirection).norm();
 		return getCosWPowerDirection(direction2, direction2.cross(Vector3(rand(), rand(), rand()).norm()).norm(), surfacePoint->material->blur);
 	}
 	else {
@@ -714,6 +433,7 @@ Vector3 Scene::sampleExplicitLightPaths(const SurfacePoint& surfacePoint) {
 	return resultingColor;
 }
 
+
 SurfacePoint* Scene::castRay(Ray& ray) {
 	return castRay(ray, false, 1e10);
 }
@@ -729,7 +449,7 @@ SurfacePoint* Scene::castRay(Ray& ray, bool shadowRay, float t) {
 	Polygon* PCurr = NULL;
 	int lightIndex = -1;
 	/* Loop through all objects */
-	for (unsigned int k = 0; k < vObj.size(); k++)
+	for (int k = 0; k < vObj.size(); k++)
 	{
 
 		Polygon* temp;
@@ -769,7 +489,7 @@ SurfacePoint* Scene::castRay(Ray& ray, bool shadowRay, float t) {
 
 	if (!shadowRay)
 	/* Loop through all light sources */
-	for (unsigned int k = 0; k < vLight.size(); k++)
+	for (int k = 0; k < vLight.size(); k++)
 	{
 
 		/* A light source hit? */
