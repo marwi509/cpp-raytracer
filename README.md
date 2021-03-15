@@ -1,4 +1,5 @@
 # cpp-raytracer
+![Alt text](top-down.jpg?raw=true "Optional Title")
 ![Alt text](bloom.png?raw=true "Optional Title")
 ![Alt text](clear_bokeh.png?raw=true "Optional Title")
 ![Alt text](green_bokeh.png?raw=true "Optional Title")
