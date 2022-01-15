@@ -121,6 +121,8 @@ class Object
 	void normsize();
 	
 	float findClosestPosition();
+
+	Vector3 findNearestPoint(const Vector3& other);
 	
 	~Object();
 	

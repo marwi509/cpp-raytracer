@@ -949,6 +949,21 @@ float Object::findClosestPosition() {
 	return sqrtf(lowest);
 }
 
+Vector3 Object::findNearestPoint(const Vector3& other) {
+	float lowest = 100000.0f;
+	Vector3 nearest = Vector3(0, 0, 0);
+	for (int i = 0; i < nrVertices; i++)
+	{
+		float square = (other - vertexList[i].position).square();
+		if (square < lowest) {
+			lowest = square;
+			nearest = vertexList[i].position;
+		}
+	}
+	return nearest;
+}
+
+
 void Object::normsize()
 {
 	Vector3 rad, pos;

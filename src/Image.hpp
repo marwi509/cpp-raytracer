@@ -60,6 +60,8 @@ class Image
 	
 	/** Mosaic */
 	void createMosaic(const char* filename, int tilesize);
+
+	void Image::savebmp(const char* filename);
 };
 
 #endif

@@ -14,7 +14,7 @@ public:
 
 	const int sampleWidth;
 	const int sampleHeight;
-	const double focalDistance;
+	double focalDistance;
 	const double apertureSize;
 	Vector3 position;
 	Vector3 lookDirection = Vector3(0,0,1);
@@ -89,6 +89,28 @@ public:
 		lookDirection = multiply(M, lookDirection);
 		xDirection = multiply(M, xDirection);
 		yDirection = multiply(M, yDirection);
+	}
+
+	void lookAt(Object* object) {
+		Vector3 lookAt = object->findNearestPoint(Vector3(5, 0, 16.5));
+		this->focalDistance = (this->position - lookAt).length();
+		Vector3 newLookAt = (lookAt - this->position).norm();
+		Vector3 zForYRotation = Vector3(newLookAt.x, 0, newLookAt.z).norm();
+		Vector3 xForYRotation = Vector3(lookAt.x, 0, lookAt.z).norm();
+
+		float yRotation = acosf(zForYRotation.dot(xForYRotation));
+		
+
+		Vector3 zForXRotation = Vector3(0, newLookAt.y, newLookAt.z).norm();
+		Vector3 xForXRotation = Vector3(0, lookAt.y, lookAt.z).norm();
+
+		float xRotation = acosf(zForXRotation.dot(xForXRotation));
+		float zDirection = Vector3(0, 0, 1).dot(newLookAt);
+
+		std::cout << xRotation << std::endl;
+		std::cout << yRotation << std::endl;
+		this->rotate(1, xRotation);
+		this->rotate(2, yRotation);
 	}
 
 private:
@@ -171,3 +193,4 @@ private:
 };
 
 #endif
+

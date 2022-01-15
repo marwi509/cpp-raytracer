@@ -5,8 +5,6 @@
 #include "Polygon.hpp"
 #include "Object.hpp"
 
-
-
 class SurfacePoint
 {
 	public:
@@ -14,7 +12,7 @@ class SurfacePoint
 			position,
 			normal,
 			tangent,
-		incomingDirection;
+			incomingDirection;
 		
 	const Material* material;
 	const Polygon* polygon;
@@ -36,13 +34,12 @@ class SurfacePoint
 		incomingDirection(_incomingDirection), 
 		material(_material), 
 		object(_object), 
-		light(_light) {
-		/*position = _position;
-		normal = _normal;
-		tangent = normal.cross(Vector3(randf(), randf(), randf()).norm());
-		incomingDirection = _incomingDirection;
-		material = _material;
-		light = _light;*/
+		light(_light),
+		polygon(_polygon){
+	}
+
+	bool isInto() {
+		return normal.dot(incomingDirection) < 0.0f;
 	}
 
 	static SurfacePoint* SurfacePoint::LIGHT(const Material* _material) {
