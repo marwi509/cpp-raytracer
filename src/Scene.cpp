@@ -116,7 +116,6 @@ void Scene::renderSceneNew(const RenderSettings& renderSettings, bool open) {
 	printInfo();
 
 	int MSAA = renderSettings.getMsaa();
-	
 	/* Render until the user aborts */
 	for (int pass = 0; pass < renderSettings.getPasses(); pass++)
 	{
@@ -254,9 +253,14 @@ Vector3 Scene::sample(Ray& ray, int errorCheck, bool diffuse, bool open)
 					dirIn))
 				.norm();
 			Vector3 newDirection = getCosWPowerDirection(direction2, direction2.cross(Vector3(rand(), rand(), rand()).norm()).norm(), surfacePoint->material->blur);				
+			/*Vector3 newDirection = getCosWPowerDirection(direction2, direction2.cross(Vector3(rand(), rand(), rand()).norm()).norm(), surfacePoint->material->blur);
+>>>>>>> 344224cc48f05b636f947cd74c4c71d02e5a7837
 			while (newDirection.dot(surfacePoint->normal) < 0.0f && err_check++ < 100)
 			{
 				newDirection = getCosWPowerDirection(direction2, direction2.cross(Vector3(rand(), rand(), rand()).norm()).norm(), surfacePoint->material->blur);
+			}*/
+			if (direction2.dot(surfacePoint->normal) < 0.0f) {
+				direction2 = Vector3() - direction2;
 			}
 			delete surfacePoint;
 			return material->specularColor*sample(Ray(position, newDirection), errorCheck+1, false, open) * compensationReflective;

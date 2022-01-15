@@ -19,6 +19,19 @@ class Scene
 
 	/* Display some info about the scene */
 	void printInfo() const;	
+	
+	/* The luminance values for the pixels, and the amount of samples for each pixel */
+	long double* HDRColor;
+	long* nrSamples;
+	
+	/* The image the scene renders to */
+	Image* bild;
+	
+	/* empty constructor */
+	Scene()
+	{
+		bild = NULL;
+	}
 
 	SurfacePoint* castRay(Ray& ray);
 
@@ -28,8 +41,7 @@ class Scene
 
 	Vector3 getRefractedDirection(const SurfacePoint* surfacePoint);
 
-	
-void renderSceneNew(const RenderSettings& renderSettings, bool open);
+	void renderSceneNew(const RenderSettings& renderSettings, bool open);
 
 	Vector3 sampleExplicitLightPaths(const SurfacePoint& surfacePoint);
 

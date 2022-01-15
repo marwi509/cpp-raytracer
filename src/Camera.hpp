@@ -92,7 +92,7 @@ public:
 	}
 
 	void lookAt(Object* object) {
-		Vector3 lookAt = object->findNearestPoint(Vector3(5, 0, 16.5));
+		Vector3 lookAt = object->findNearestPoint(Vector3(0, 0, 0));
 		this->focalDistance = (this->position - lookAt).length();
 		Vector3 newLookAt = (lookAt - this->position).norm();
 		Vector3 zForYRotation = Vector3(newLookAt.x, 0, newLookAt.z).norm();
@@ -193,4 +193,3 @@ private:
 };
 
 #endif
-

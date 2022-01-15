@@ -104,65 +104,6 @@ Object createBox() {
 	return theBox;
 }
 
-Object createBox(const Vector3& position, const Vector3& scales, const Material& material) {
-	Object theBox;
-	float x = 1, y = 1, z = 1;
-
-
-	/* Add the vertices for the box */
-	theBox.addVertex(Vector3(x, -y, -z));
-	theBox.addVertex(Vector3(x, -y, z));
-	theBox.addVertex(Vector3(-x, -y, z));
-	theBox.addVertex(Vector3(-x, -y, -z));
-
-	theBox.addVertex(Vector3(-x, y, -z));
-	theBox.addVertex(Vector3(-x, y, z));
-	theBox.addVertex(Vector3(x, y, z));
-	theBox.addVertex(Vector3(x, y, -z));
-
-	theBox.addVertex(Vector3(-x, -y, z));
-	theBox.addVertex(Vector3(x, -y, z));
-	theBox.addVertex(Vector3(x, 0, -z));
-	theBox.addVertex(Vector3(-x, -y, -z));
-
-	theBox.material = Material::DIFFUSE(Vector3(.75, .75, .75));
-
-	// Back
-	theBox.addQuad(0, 3, 4, 7);
-
-
-	// Top
-	theBox.material = Material::DIFFUSE(Vector3(.75, .75, .75));
-
-	// Front
-	theBox.addQuad(1, 2, 5, 6);
-
-	theBox.material = Material::DIFFUSE(Vector3(.75, .75, .75));
-	// Floor
-	theBox.addQuad(0, 1, 2, 3);
-
-	theBox.material = Material::DIFFUSE(Vector3(.75, .75, .75));
-
-	// Left
-	theBox.addQuad(2, 3, 4, 5);
-
-	theBox.material = Material::DIFFUSE(Vector3(.75, .75, .75));
-
-	// Höger
-	theBox.addQuad(0, 1, 6, 7);
-
-	theBox.material = Material::DIFFUSE(Vector3(.75, .75, .75));
-	//top
-	theBox.addQuad(4, 5, 6, 7);
-
-	
-	theBox.scale(scales);
-	theBox.translate(position);
-	theBox.getAAB(0);
-	theBox.SMOOTH = false;
-	theBox.USE_AAB = false;
-	return theBox;
-}
 
 Object createCheckeredFloor() {
 	Object theBox;
@@ -310,23 +251,14 @@ int main(int argc, char** argv)
 	theDragon3.getAAB(24);
 	*/
 
-	//Object theDragon3 = getDragon(Material::GOLD());
-	Object theDragon3 = getDragon(Material::PORCELAIN(Vector3(0.95f, 0.65f, 0.65f)));
-	theDragon3.getAAB(24);
-	/*Object theDragon3 = getDragon(Material::GLASS(Vector3(0.85f, 0.95f, 0.85f)));
+	Object theDragon3 = getDragon(Material::GLASS(Vector3(0.85f, 0.95f, 0.85f)));
 	
 	theDragon3.translate(Vector3(13.0, 0.0, -10.0));
 	theDragon3.rotate(2, 2.5);
-	theDragon3.getAAB(24);*/
-
-	/*Object porcelain = getDragon(Material::PORCELAIN(Vector3(0.95f, 0.65f, 0.65f)));
-
-	porcelain.translate(Vector3(13.0, 0.0, -10.0));
-	porcelain.rotate(2, 1.5);
-	porcelain.getAAB(24);
+	theDragon3.getAAB(24);
 
 	Object* ajax = getAjax();
-	ajax->getAAB(24);*/
+	ajax->getAAB(24);
 
 	Scene test;
 	
@@ -334,7 +266,7 @@ int main(int argc, char** argv)
 	
 	Object redGlassBox;
 	//redGlassBox.material = Material::DIFFUSE(Vector3(0.75, 0.75, 0.75));
-	redGlassBox.material = Material::PORCELAIN(Vector3(0.95f, 0.65f, 0.65f));
+	redGlassBox.material = Material::GLASS(Vector3(0.95f, 0.85f, 0.85f));
 	//redGlassBox.material = Material::MIRROR();
 	redGlassBox.makeUnitBox();
 	redGlassBox.scale(Vector3(3.0f, 6.0f, 3.0f));
@@ -372,7 +304,7 @@ int main(int argc, char** argv)
 
 	
 
-	/*Object greenGlassBox;
+	Object greenGlassBox;
 	redGlassBox.material = Material::MIRROR();
 	//greenGlassBox.material = Material::DIFFUSE(Vector3(0.85f, 0.75f, 0.75f));
 	greenGlassBox.makeUnitBox();
@@ -381,18 +313,18 @@ int main(int argc, char** argv)
 	greenGlassBox.placeOnFloor(-10.0f);
 	greenGlassBox.translate(Vector3(15.0f, 0.0f, 20.0f));
 
-	greenGlassBox.getAAB(0);*/
+	greenGlassBox.getAAB(0);
 
 	
 
 	Object greenSolidBox;
 	//redGlassBox.material = Material::MIRROR(Vector3(0.85f, 0.75f, 0.75f));
-	greenSolidBox.material = Material::DIFFUSE(Vector3(0.75f, 0.75f, 0.95f));
+	greenSolidBox.material = Material::DIFFUSE(Vector3(0.85f, 0.95f, 0.85f));
 	greenSolidBox.makeUnitBox();
 	//greenGlassBox.rotate(2, 1.0);
-	greenSolidBox.scale(Vector3(5.0f, 1.0f, 5.0f));
-	//greenSolidBox.placeOnFloor(-10.0f);
-	greenSolidBox.translate(Vector3(-5.0f, 2.0f, 12.0f));
+	greenSolidBox.scale(Vector3(3.0f, 6.0f, 3.0f));
+	greenSolidBox.placeOnFloor(-10.0f);
+	greenSolidBox.translate(Vector3(-15.0f, 0.0f, 10.0f));
 
 	greenSolidBox.getAAB(0);
 
@@ -402,12 +334,11 @@ int main(int argc, char** argv)
 	test.vObj.push_back(&greenGlassBox);
 	test.vObj.push_back(&greenSolidBox);*/
 
+
 	
 	test.vObj.push_back(&theBox);
 	test.vObj.push_back(&theDragon3);
-	test.vObj.push_back(&greenSolidBox);
-	//test.vObj.push_back(ajax);
-	//test.vObj.push_back(&porcelain);
+	test.vObj.push_back(ajax);
 	test.vLight.push_back(&L);
 	//test.vLight.push_back(&L2);
 	
@@ -419,7 +350,7 @@ int main(int argc, char** argv)
 	//std::cout << reflectiveStatue.findClosestPosition() << std::endl;
 	//float dof = 5.0;//reflectiveStatue.findClosestPosition();
 	//test.renderScenePath(1024, 600, filename.c_str(), 14.0, 0.6f);
-	int msaa = 8;
+	int msaa = 2;
 	//RenderSettings settings = RenderSettings(1024, 600, msaa, 10.0f, 0.15f, Vector3(0, -5, 5));
 
 	for (int i = 0; i <= 240; i++) {
@@ -428,11 +359,11 @@ int main(int argc, char** argv)
 		char numstr[21]; // enough to hold all numbers up to 64-bits
 		string prefix = "out_2021_second_frame_";
 		string filename = prefix + itoa(i, numstr, 10) + ".bmp";
-		RenderSettings settings = RenderSettings(1024, 600, msaa, 17.0f, 0.15f, Vector3(5,-2.0f,-2.0f + 0.01f * i), filename.c_str(), 10, 1);
+		RenderSettings settings = RenderSettings(1024, 600, msaa, 17.0f, 0.15f, Vector3(5,-2.0f,-20.0f + 0.01f * i), filename.c_str(), 1, 1);
 		greenSolidBox.translate(Vector3(i * 0.003f, 0.0f, 0.0f));
 		//settings.rotateCamera(1, 0.5);
 		//settings.rotateCamera(2, -0.5);
-		settings.getCamera()->lookAt(&theDragon3);
+		settings.getCamera()->lookAt(ajax);
 		test.renderSceneNew(settings, false);
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "Frame " << i << " took " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[s]" << std::endl;
